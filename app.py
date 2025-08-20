@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 
 # -----------------------------
 # 페이지 설정
@@ -48,9 +47,9 @@ st.write(f"🔸 {metal2}: {elements[metal2]}")
 def calc_properties(m1, r1, m2, r2):
     # 기본 점수 (0~1)
     score = {
-        "강도 💪":0,
-        "내식성 🛡️":0,
-        "가벼움 ⚖️":0
+        "💪 강도":0,
+        "🛡️ 내식성":0,
+        "⚖️ 가벼움":0
     }
 
     factor = {
@@ -63,9 +62,9 @@ def calc_properties(m1, r1, m2, r2):
 
     # 비율 반영
     total = r1 + r2
-    score["강도 💪"] = (factor[m1]["strength"]*r1 + factor[m2]["strength"]*r2)/total*100
-    score["내식성 🛡️"] = (factor[m1]["corrosion"]*r1 + factor[m2]["corrosion"]*r2)/total*100
-    score["가벼움 ⚖️"] = (factor[m1]["weight"]*r1 + factor[m2]["weight"]*r2)/total*100
+    score["💪 강도"] = (factor[m1]["strength"]*r1 + factor[m2]["strength"]*r2)/total*100
+    score["🛡️ 내식성"] = (factor[m1]["corrosion"]*r1 + factor[m2]["corrosion"]*r2)/total*100
+    score["⚖️ 가벼움"] = (factor[m1]["weight"]*r1 + factor[m2]["weight"]*r2)/total*100
 
     return score
 
@@ -80,23 +79,23 @@ else:
 
     st.subheader("📊 합금 예측 결과")
     st.write(f"🔹 합금 조합: {metal1} {ratio1}% + {metal2} {ratio2}%")
-    st.write(f"💪 강도: {scores['강도 💪']:.1f} / 100")
-    st.write(f"🛡️ 내식성: {scores['내식성 🛡️']:.1f} / 100")
-    st.write(f"⚖️ 가벼움: {scores['가벼움 ⚖️']:.1f} / 100")
+    st.write(f"💪 강도: {scores['💪 강도']:.1f} / 100")
+    st.write(f"🛡️ 내식성: {scores['🛡️ 내식성']:.1f} / 100")
+    st.write(f"⚖️ 가벼움: {scores['⚖️ 가벼움']:.1f} / 100")
 
     # -----------------------------
-    # Streamlit 내장 그래프 사용
+    # Streamlit 내장 그래프 사용 (pandas 없이)
     # -----------------------------
-    df = pd.DataFrame.from_dict(scores, orient='index', columns=['수치'])
-    st.bar_chart(df)
+    st.subheader("📈 특성 그래프")
+    st.bar_chart(list(scores.values()), height=300)
 
     # -----------------------------
     # 추천 팁
     # -----------------------------
     st.subheader("💡 합금 추천 팁")
-    if scores["강도 💪"] > 60 and scores["가벼움 ⚖️"] > 50:
+    if scores["💪 강도"] > 60 and scores["⚖️ 가벼움"] > 50:
         st.write("🚀 경량 고강도 합금 추천!")
-    elif scores["내식성 🛡️"] > 60:
+    elif scores["🛡️ 내식성"] > 60:
         st.write("🛡️ 내식성 우수 합금 추천!")
     else:
         st.write("🔹 일반 합금, 실험을 통해 최적 조합을 찾아보세요.")
