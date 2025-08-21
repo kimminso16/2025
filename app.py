@@ -1,75 +1,87 @@
-import streamlit as st
-import sys
-import subprocess
+a import streamlit as st
 
-# 🔧 필요한 라이브러리 자동 설치
-def install_and_import(package):
-    try:
-        __import__(package)
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-    finally:
-        globals()[package] = __import__(package)
+# 제목
+st.set_page_config(page_title="🧪 스마트 합금 설계 시뮬레이터 ⚙️", layout="wide")
 
-install_and_import("pandas")
-install_and_import("matplotlib")
+st.title("🧪 스마트 합금 설계 시뮬레이터 ⚙️")
+st.write("원소를 선택해서 합금을 만들고, 특징과 활용 분야를 확인해보세요! 🚀")
 
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# 🎉 제목
-st.title("🧪 스마트 합금 설계 & 활용 분야 시뮬레이터 ⚙️")
-
-# 🧑‍🔬 원소 데이터
+# 원소 데이터
 elements = {
-    "Fe": {"특징": "강철의 주성분, 높은 강도 💪", "활용": "건축 자재 🏗️, 자동차 🚗"},
-    "Cu": {"특징": "우수한 전기 전도성 ⚡", "활용": "전선 🔌, 전자기기 📱"},
-    "Al": {"특징": "가볍고 내식성 🪶", "활용": "항공기 ✈️, 캔 🥫"},
-    "Ni": {"특징": "내열·내식성 🔥", "활용": "터빈 엔진 ✈️, 화학 장비 ⚗️"},
-    "Ti": {"특징": "강도 높고 가벼움 🏋️", "활용": "의료용 임플란트 🦾, 항공 우주 🚀"},
-    "Zn": {"특징": "부식 방지 🛡️", "활용": "도금 철강 🏭"},
-    "Mg": {"특징": "초경량 합금 🚴", "활용": "자전거 🚲, 전자제품 💻"}
+    "Al(알루미늄)": {
+        "특징": "가볍고 부식에 강함 💨",
+        "활용": "항공기✈️, 자동차🚗, 건축🏢"
+    },
+    "Fe(철)": {
+        "특징": "강도가 높음 💪",
+        "활용": "교량🌉, 빌딩🏗️, 철강재료⚙️"
+    },
+    "Cu(구리)": {
+        "특징": "전기전도율이 높음 ⚡",
+        "활용": "전선🔌, 전자기기📱, 배관🚰"
+    },
+    "Ni(니켈)": {
+        "특징": "내열·내식성 우수 🔥",
+        "활용": "배터리🔋, 터빈엔진🛞, 화학기계⚗️"
+    },
+    "Ti(티타늄)": {
+        "특징": "강도 대비 가벼움 🪶",
+        "활용": "의료 임플란트🦴, 항공우주🚀, 스포츠 장비🎾"
+    }
 }
 
-# 🌟 선택 UI
-st.header("⚙️ 합금 원소 선택")
+# 사용자 입력
 col1, col2 = st.columns(2)
 with col1:
-    elem1 = st.selectbox("첫 번째 원소 선택", list(elements.keys()))
+    e1 = st.selectbox("첫 번째 원소 선택", list(elements.keys()))
 with col2:
-    elem2 = st.selectbox("두 번째 원소 선택", list(elements.keys()))
+    e2 = st.selectbox("두 번째 원소 선택", list(elements.keys()))
 
-if elem1 and elem2 and elem1 != elem2:
-    st.subheader(f"🔬 선택한 합금: **{elem1}-{elem2} 합금**")
+# 합금 결과 출력
+if e1 and e2 and e1 != e2:
+    st.subheader("🔬 합금 결과")
 
-    # 특징 및 활용 설명
-    st.write(f"**{elem1} 특징:** {elements[elem1]['특징']}")
-    st.write(f"**{elem2} 특징:** {elements[elem2]['특징']}")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"**{e1} 특징:** {elements[e1]['특징']}")
+        st.write(f"**{e1} 주요 활용 분야:** {elements[e1]['활용']}")
+    with col2:
+        st.write(f"**{e2} 특징:** {elements[e2]['특징']}")
+        st.write(f"**{e2} 주요 활용 분야:** {elements[e2]['활용']}")
 
-    st.success(f"✅ 이 합금은 주로 **{elements[elem1]['활용']}** 및 **{elements[elem2]['활용']}** 분야에서 응용됩니다!")
+    st.markdown("---")
 
-    # 📊 데이터프레임 생성
-    data = pd.DataFrame({
-        "원소": [elem1, elem2],
-        "특징": [elements[elem1]["특징"], elements[elem2]["특징"]],
-        "활용 분야": [elements[elem1]["활용"], elements[elem2]["활용"]],
-        "가상 강도": [len(elements[elem1]["특징"]) * 10, len(elements[elem2]["특징"]) * 10],
-        "내식성": [len(elements[elem1]["활용"]) * 5, len(elements[elem2]["활용"]) * 5]
-    })
+    # 실제 합금 활용 분야 (단순 매핑)
+    applications = {
+        frozenset(["Al(알루미늄)", "Cu(구리)"]): "⚡ 전기·열 교류 장치, 방열판, 항공기 부품",
+        frozenset(["Fe(철)", "C(탄소)"]): "⚙️ 강철(철강 산업 전반)",
+        frozenset(["Ni(니켈)", "Cu(구리)"]): "🔋 전기저항 합금, 화폐, 배터리",
+        frozenset(["Ti(티타늄)", "Al(알루미늄)"]): "🚀 항공우주, 인공위성, 스포츠 장비",
+        frozenset(["Fe(철)", "Ni(니켈)"]): "🔥 내열합금, 발전소 터빈, 원자로"
+    }
 
-    st.dataframe(data)
+    combo = frozenset([e1, e2])
+    if combo in applications:
+        st.success(f"✨ **{e1} + {e2} 합금은 실제로 → {applications[combo]} 에 활용됩니다!**")
+    else:
+        st.info("💡 이 조합은 특성이 연구 중이거나 활용도가 낮습니다!")
 
-    # 📈 그래프 시각화
-    st.subheader("📊 합금 성질 시각화")
-    fig, ax = plt.subplots(figsize=(7, 5))
-    ax.scatter(data["가상 강도"], data["내식성"], s=300, c="orange", alpha=0.7, edgecolors="black")
+    # 간단한 그래프 (강도 vs 밀도 예시)
+    st.subheader("📊 합금 성질 비교")
+    chart_data = {
+        "원소": [e1, e2],
+        "강도(상대적)": [len(elements[e1]["특징"]), len(elements[e2]["특징"])],
+        "밀도(상대적)": [len(elements[e1]["활용"]), len(elements[e2]["활용"])]
+    }
 
-    for i, txt in enumerate(data["원소"]):
-        ax.annotate(txt, (data["가상 강도"][i] + 2, data["내식성"][i] + 2))
+    import pandas as pd
+    df = pd.DataFrame(chart_data)
+    st.bar_chart(df.set_index("원소"))
 
-    ax.set_xlabel("가상 강도 💪")
-    ax.set_ylabel("내식성 🛡️")
-    ax.set_title(f"{elem1}-{elem2} 합금 성질 그래프")
-    st.pyplot(fig)
+    # 대표 합금 이미지 (Unsplash 무료 이미지 사용)
+    st.subheader("🖼️ 대표 합금 이미지")
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Aluminium-foil.jpg/640px-Aluminium-foil.jpg",
+             caption="예시: 알루미늄 합금", use_container_width=True)
+
 else:
-    st.warning("⚠️ 서로 다른 두 원소를 선택해주세요!")
+    st.warning("👆 두 개의 다른 원소를 선택해주세요!")
