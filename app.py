@@ -1,72 +1,57 @@
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
+import altair as alt
+import pandas as pd
 
-# 🌟 웹앱 제목
-st.title("🧪 스마트 합금 설계 시뮬레이터 ⚙️")
-st.write("원소를 선택해 합금을 설계하고, 그 특성과 활용 분야를 확인해보세요! 🚀")
+# 앱 제목
+st.set_page_config(page_title="⚙️ 스마트 합금 설계 시뮬레이터", page_icon="🧪")
 
-# 🧩 원소 데이터베이스
+st.title("⚙️ 스마트 합금 설계 시뮬레이터 🧪✨")
+st.write("여러 원소를 선택해서 합금을 설계하고 ⚡ 특징과 활용 분야를 알아보세요!")
+
+# 원소 데이터
 elements = {
-    "Fe (철)": {
-        "특징": "강도와 내구성이 뛰어남 💪",
-        "활용": "건축물, 자동차, 선박 🏗️🚗🚢"
-    },
-    "Cu (구리)": {
-        "특징": "전기전도성이 우수 ⚡",
-        "활용": "전선, 반도체, 배터리 🔌💻🔋"
-    },
-    "Al (알루미늄)": {
-        "특징": "가볍고 내식성이 좋음 🪶",
-        "활용": "비행기, 음료 캔, 전자제품 ✈️🥫📱"
-    },
-    "Ni (니켈)": {
-        "특징": "부식에 강하고 경도가 높음 🛡️",
-        "활용": "스테인리스강, 화학 장비 🔧⚗️"
-    },
-    "Ti (티타늄)": {
-        "특징": "가볍고 강철만큼 강함 🚀",
-        "활용": "항공우주, 인공관절, 군수품 🛰️🦾"
-    }
+    "Fe (철)": {"특징": "강도가 높고 자기적 성질 보유 ⚡", "분야": "건축, 자동차 🚗, 기계 🛠️"},
+    "Al (알루미늄)": {"특징": "가볍고 부식에 강함 🌊", "분야": "항공 ✈️, 포장재 📦, 전기 전선 ⚡"},
+    "Cu (구리)": {"특징": "전기전도율이 매우 높음 🔌", "분야": "전선 ⚡, 동전 💰, 합금 (청동, 황동) 🛡️"},
+    "Ni (니켈)": {"특징": "부식 저항성 🧩, 강도 향상", "분야": "스테인리스 강 🍴, 배터리 🔋"},
+    "Ti (티타늄)": {"특징": "가볍고 인체 친화적 ❤️", "분야": "의료 임플란트 🦾, 항공 ✈️"},
+    "Mg (마그네슘)": {"특징": "아주 가벼움 🪶", "분야": "항공 ✈️, 자동차 🚗 경량화"},
 }
 
-# 🎛️ 사용자 입력
-st.sidebar.header("⚙️ 합금 원소 선택")
-selected_elements = st.sidebar.multiselect("합금을 만들 원소를 선택하세요:", list(elements.keys()))
+# 사용자 입력
+selected = st.multiselect("👉 합금할 원소를 선택하세요:", list(elements.keys()))
 
-# 📊 합금 설계 결과
-if len(selected_elements) >= 2:
-    st.subheader("🔬 선택한 합금 정보")
-    for elem in selected_elements:
-        st.write(f"### {elem}")
-        st.write(f"- **특징**: {elements[elem]['특징']}")
-        st.write(f"- **활용 분야**: {elements[elem]['활용']}")
+if selected:
+    st.subheader("🧾 선택한 원소의 특징")
+    for el in selected:
+        st.markdown(f"**{el}**")
+        st.write(f"- 특징: {elements[el]['특징']}")
+        st.write(f"- 활용 분야: {elements[el]['분야']}")
 
-    # 📈 그래프로 합금 특성 표현
-    st.subheader("📊 합금 특성 시각화")
+    # 데이터프레임 변환 (활용분야 갯수 기준 단순화)
+    df = pd.DataFrame({
+        "원소": selected,
+        "활용 분야 개수": [len(elements[el]['분야'].split(",")) for el in selected]
+    })
 
-    # 랜덤 특성 값 (예시: 강도, 전도성)
-    np.random.seed(42)
-    properties = {
-        "강도 💪": np.random.randint(50, 100),
-        "전도성 ⚡": np.random.randint(30, 90),
-        "내식성 🛡️": np.random.randint(40, 95),
-        "경량성 🪶": np.random.randint(20, 80),
-    }
+    # Altair 그래프 (예쁘게)
+    chart = (
+        alt.Chart(df)
+        .mark_bar(cornerRadiusTopLeft=10, cornerRadiusTopRight=10, color="steelblue")
+        .encode(
+            x=alt.X("원소", sort=None, title="🔬 원소"),
+            y=alt.Y("활용 분야 개수", title="📊 활용 다양성"),
+            tooltip=["원소", "활용 분야 개수"]
+        )
+    )
+    st.altair_chart(chart, use_container_width=True)
 
-    categories = list(properties.keys())
-    values = list(properties.values())
-
-    fig, ax = plt.subplots(figsize=(6,4))
-    ax.bar(categories, values, color=["steelblue", "orange", "green", "purple"])
-    ax.set_xlabel("특성", fontsize=12)
-    ax.set_ylabel("수치 (0~100)", fontsize=12)
-    ax.set_title("합금 특성 분석 결과", fontsize=14)
-    st.pyplot(fig)
-
-    # 📷 합금 관련 이미지 추가
-    st.subheader("🖼️ 참고 이미지")
-    st.image("https://upload.wikimedia.org/wikipedia/commons/6/6f/Aluminium-alloy.jpg", caption="알루미늄 합금 예시", use_container_width=True)
-
+    st.subheader("📸 관련 이미지")
+    if "Al (알루미늄)" in selected:
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Aluminium-4.jpg/320px-Aluminium-4.jpg", caption="알루미늄 금속")
+    if "Fe (철)" in selected:
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Iron_electrolytic_and_1cm3_cube.jpg/320px-Iron_electrolytic_and_1cm3_cube.jpg", caption="철 금속")
+    if "Cu (구리)" in selected:
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Copper%28II%29_sulfate_pentahydrate_powder_sample.jpg/320px-Copper%28II%29_sulfate_pentahydrate_powder_sample.jpg", caption="구리")
 else:
-    st.warning("⚠️ 최소 2개 이상의 원소를 선택해야 합금을 설계할 수 있습니다!")
+    st.info("👆 위에서 원소를 선택하면 결과가 표시됩니다!")
